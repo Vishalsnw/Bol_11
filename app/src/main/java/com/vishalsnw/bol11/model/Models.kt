@@ -10,13 +10,16 @@ data class Movie(
     val priceHistory: List<Double> = emptyList()
 )
 
-data class Trader(
-    val id: String,
-    val name: String,
-    val type: TraderType,
-    val coins: Double = 10000.0
+data class Portfolio(
+    val userId: String,
+    val holdings: MutableMap<String, Int> = mutableMapOf() // movieId to quantity
 )
 
-enum class TraderType {
-    USER, AI_TRADER, MARKET_BOT, STUDIO_BOT
-}
+data class Transaction(
+    val id: String,
+    val movieId: String,
+    val quantity: Int,
+    val price: Double,
+    val timestamp: Long = System.currentTimeMillis(),
+    val isBuy: Boolean
+)

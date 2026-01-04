@@ -6,7 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.vishalsnw.bol11.databinding.ItemMovieBinding
 import com.vishalsnw.bol11.model.Movie
 
-class MovieAdapter(private var movies: List<Movie>) : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
+class MovieAdapter(
+    private var movies: List<Movie>,
+    private val onBuyClick: (Movie) -> Unit
+) : RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
 
     class MovieViewHolder(val binding: ItemMovieBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -19,8 +22,9 @@ class MovieAdapter(private var movies: List<Movie>) : RecyclerView.Adapter<Movie
         val movie = movies[position]
         holder.binding.apply {
             tvMovieName.text = movie.name
-            tvPrice.text = "₹${movie.currentPrice}"
+            tvPrice.text = "₹${String.format("%.2f", movie.currentPrice)}"
             tvVerdict.text = movie.verdict
+            btnBuy.setOnClickListener { onBuyClick(movie) }
         }
     }
 

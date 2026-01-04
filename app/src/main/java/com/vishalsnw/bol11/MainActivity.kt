@@ -13,15 +13,30 @@ import kotlinx.coroutines.launch
 import android.util.Log
 import android.widget.Toast
 
+import com.vishalsnw.bol11.api.BotTraderService
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MovieAdapter
     private val scraper = MovieDataScraper()
+    private lateinit var botService: BotTraderService
+    private var userCoins = 10000.0
+    private var currentMovies = mutableListOf<Movie>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        botService = BotTraderService { id, newPrice ->
+            runOnUiThread {
+                val index = currentMovies.indexOfFirst { it.id == id }
+                if (index != -1) {
+                    currentMovies[index] = currentMovies[index].copy(currentPrice = newPrice)
+                    adapter.updateData(currentMovies)
+                }
+            }
+        }
 
         setupUI()
         loadData()
@@ -30,9 +45,26 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUI() {
         binding.tvTitle.text = "Movie Stock Market"
-        adapter = MovieAdapter(emptyList())
+        updateWalletUI()
+        adapter = MovieAdapter(emptyList()) { movie ->
+            buyStock(movie)
+        }
         binding.rvMovies.layoutManager = LinearLayoutManager(this)
         binding.rvMovies.adapter = adapter
+    }
+
+    private fun updateWalletUI() {
+        binding.tvWallet.text = "Coins: ${String.format("%.0f", userCoins)}"
+    }
+
+    private fun buyStock(movie: Movie) {
+        if (userCoins >= movie.currentPrice) {
+            userCoins -= movie.currentPrice
+            updateWalletUI()
+            Toast.makeText(this, "Purchased ${movie.name} for ${movie.currentPrice}", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(this, "Not enough coins!", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun loadData() {
@@ -40,22 +72,20 @@ class MainActivity : AppCompatActivity() {
             try {
                 Log.d("MainActivity", "Loading trending movies...")
                 val trendingMovies = scraper.getTrendingMovies()
-                Log.d("MainActivity", "Found ${trendingMovies.size} movies")
-                
-                if (trendingMovies.isEmpty()) {
-                    Toast.makeText(this@MainActivity, "No movies found. Check connection.", Toast.LENGTH_LONG).show()
-                }
-
-                val movies = trendingMovies.map { 
-                    Log.d("MainActivity", "Scraping $it")
-                    scraper.scrapeMovieDetails(it) 
-                }
-                adapter.updateData(movies)
+                val movies = trendingMovies.map { scraper.scrapeMovieDetails(it) }
+                currentMovies.clear()
+                currentMovies.addAll(movies)
+                adapter.updateData(currentMovies)
+                botService.startSimulation(currentMovies)
             } catch (e: Exception) {
                 Log.e("MainActivity", "Error loading data", e)
-                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        botService.stop()
     }
 
     private fun showDisclaimer() {
