@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.vishalsnw.bol11.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
+import androidx.recyclerview.widget.LinearLayoutManager
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -19,6 +20,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupUI() {
         binding.tvTitle.text = "Movie Stock Market"
+        binding.rvMovies.layoutManager = LinearLayoutManager(this)
         // Initial setup for the fantasy trading game UI
     }
 
