@@ -15,6 +15,9 @@ import android.widget.Toast
 
 import com.vishalsnw.bol11.api.BotTraderService
 
+import android.content.Context
+import android.content.SharedPreferences
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MovieAdapter
@@ -22,11 +25,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var botService: BotTraderService
     private var userCoins = 10000.0
     private var currentMovies = mutableListOf<Movie>()
+    private lateinit var prefs: SharedPreferences
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        prefs = getSharedPreferences("Bol11Prefs", Context.MODE_PRIVATE)
+        userCoins = prefs.getFloat("user_coins", 10000f).toDouble()
 
         botService = BotTraderService { id, newPrice ->
             runOnUiThread {
@@ -55,13 +62,19 @@ class MainActivity : AppCompatActivity() {
 
     private fun updateWalletUI() {
         binding.tvWallet.text = "Coins: ${String.format("%.0f", userCoins)}"
+        prefs.edit().putFloat("user_coins", userCoins.toFloat()).apply()
     }
 
     private fun buyStock(movie: Movie) {
         if (userCoins >= movie.currentPrice) {
             userCoins -= movie.currentPrice
             updateWalletUI()
-            Toast.makeText(this, "Purchased ${movie.name} for ${movie.currentPrice}", Toast.LENGTH_SHORT).show()
+            
+            // Save holding
+            val holdings = prefs.getInt("holding_${movie.id}", 0)
+            prefs.edit().putInt("holding_${movie.id}", holdings + 1).apply()
+            
+            Toast.makeText(this, "Purchased ${movie.name} for ${String.format("%.2f", movie.currentPrice)}", Toast.LENGTH_SHORT).show()
         } else {
             Toast.makeText(this, "Not enough coins!", Toast.LENGTH_SHORT).show()
         }
