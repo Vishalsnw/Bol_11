@@ -7,7 +7,7 @@ This is a fantasy movie trading Android app built in Kotlin. It simulates a movi
 - **Language**: Kotlin
 - **Platform**: Android
 - **UI**: XML Layouts with Material Design (Dark Theme)
-- **Data**: Automated movie data collection from public sources.
+- **Data**: Real-time automated movie data scraping using Jsoup from public search results (Google Search) to get box office collections and verdicts.
 - **AI**: 1000+ AI traders (Market Bots, Studio Bots) to maintain market liquidity.
 
 ## Important Notes
