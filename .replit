@@ -5,3 +5,24 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Code Explorer"
+
+[[workflows.workflow]]
+name = "Code Explorer"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo 'Android Source Code - View and edit Kotlin/Java files. Note: Build and Run requires Android SDK/Studio locally.' && ls -R app/src/main/java && sleep infinity"
+
+[workflows.workflow.metadata]
+outputType = "console"
