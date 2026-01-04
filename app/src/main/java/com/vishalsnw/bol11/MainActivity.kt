@@ -10,6 +10,9 @@ import com.vishalsnw.bol11.api.MovieDataScraper
 import com.vishalsnw.bol11.model.Movie
 import kotlinx.coroutines.launch
 
+import android.util.Log
+import android.widget.Toast
+
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: MovieAdapter
@@ -34,9 +37,24 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadData() {
         lifecycleScope.launch {
-            val trendingMovies = scraper.getTrendingMovies()
-            val movies = trendingMovies.map { scraper.scrapeMovieDetails(it) }
-            adapter.updateData(movies)
+            try {
+                Log.d("MainActivity", "Loading trending movies...")
+                val trendingMovies = scraper.getTrendingMovies()
+                Log.d("MainActivity", "Found ${trendingMovies.size} movies")
+                
+                if (trendingMovies.isEmpty()) {
+                    Toast.makeText(this@MainActivity, "No movies found. Check connection.", Toast.LENGTH_LONG).show()
+                }
+
+                val movies = trendingMovies.map { 
+                    Log.d("MainActivity", "Scraping $it")
+                    scraper.scrapeMovieDetails(it) 
+                }
+                adapter.updateData(movies)
+            } catch (e: Exception) {
+                Log.e("MainActivity", "Error loading data", e)
+                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+            }
         }
     }
 
