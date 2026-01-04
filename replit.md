@@ -19,3 +19,7 @@ This is a fantasy movie trading Android app built in Kotlin. It simulates a movi
 - **Status**: Initial Android project structure created.
 - **Core Components**: MainActivity, Data Models, Basic UI layout.
 
+## Replit Environment Notes
+- This Android app cannot be built or run directly in Replit (no Android SDK/emulator support).
+- The codebase can be viewed and edited here.
+- For building: Use GitHub Actions, Android Studio locally, or a CI/CD pipeline.
