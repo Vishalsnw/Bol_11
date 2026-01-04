@@ -1,0 +1,101 @@
+Build a mobile-first Android app that feels like a fantasy trading game.
+This app simulates a movie stock market.
+This is a skill-based game using virtual coins only.
+1. Automation First (No Manual Work)
+The system must run automatically.
+Movies, prices, and results should update without human input.
+If exact numbers are not available, use the best public estimate and continue the game smoothly.
+
+Data Collection – Simple & Automatic
+The app should automatically read movie performance from public internet pages.
+How to do this (in simple terms):
+Search the movie name + “box office collection”
+Read the visible numbers shown on news pages or search summaries
+Extract only:
+Opening day collection
+Weekend total
+Overall verdict words (Hit / Flop / Average)
+If different numbers appear:
+Take the most commonly repeated value
+Smooth sudden jumps instead of stopping the game
+Important:
+Data is used only for game simulation
+Exact financial accuracy is NOT required
+
+Movie Market Logic
+Each movie behaves like a stock.
+Trailer release → movie appears in market
+Market stays open for several days
+Users and AI traders can buy and sell
+Market closes automatically at a fixed time
+After close:
+Movie performance updates automatically
+Coins are redistributed
+Leaderboard updates
+4. AI Traders (Very Important)
+Add 1000+ AI traders from day one.
+These are NOT fake users. They must be clearly marked as:
+“AI Trader”
+“Market Bot”
+“Studio Bot”
+AI trader behavior:
+Some are aggressive
+Some are conservative
+Some follow hype
+Some react late
+AI traders should:
+Buy and sell randomly within logical limits
+React to trailer hype and early box office data
+Create price movement and volume
+Purpose:
+Keep the market alive
+Create competition
+Make the game feel crowded and active
+
+Pricing & Movement
+Movie price changes based on:
+Buy vs sell pressure
+New data updates
+AI trader activity
+Prices should:
+Go up with positive news
+Go down with bad news
+Never freeze or stop
+Movement should feel alive, not perfect.
+6. Coin Rules (Strict)
+Coins are free
+Coins have NO real value
+Coins cannot be cashed out
+Coins are only for ranking
+7. Rewards (Optional, Legal)
+Monthly:
+Top skill-based players
+Selected by accuracy and consistency
+Rewards:
+Platform-sponsored promotional prizes
+Not linked to coins
+Not linked to losses
+
+8. UI Feel
+The app must feel:
+Competitive
+Fast
+Exciting
+Use:
+Dark theme
+Green for gains
+Red for losses
+Animated price changes
+Rank jump animations
+Confetti on results
+9. Clear Disclaimer (Must Show)
+“This app is a skill-based movie prediction game.
+All data is collected from public sources and used only for gameplay simulation.
+AI traders are part of the game design.
+Virtual coins have no real-world value.”
+
+10. Priority
+If something fails:
+Do not stop the game
+Approximate and continue
+Smooth errors instead of blocking users
