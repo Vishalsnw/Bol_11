@@ -1,4 +1,4 @@
-name: Build Release APK and AAB
+name: Build Release APK and AAB 
 
 on:
   push:
