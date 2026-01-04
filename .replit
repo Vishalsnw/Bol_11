@@ -14,15 +14,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Code Explorer"
+args = "Source Viewer"
 
 [[workflows.workflow]]
-name = "Code Explorer"
+name = "Source Viewer"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo 'Android Source Code - View and edit Kotlin/Java files. Note: Build and Run requires Android SDK/Studio locally.' && ls -R app/src/main/java && sleep infinity"
+args = "echo 'Native Android Project Source Code' && echo 'Viewing: com.vishalsnw.bol11' && ls -R app/src/main/java/com/vishalsnw/bol11 && sleep infinity"
 
 [workflows.workflow.metadata]
 outputType = "console"
