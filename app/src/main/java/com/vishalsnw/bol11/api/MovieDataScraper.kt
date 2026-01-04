@@ -12,30 +12,28 @@ class MovieDataScraper {
 
     suspend fun getTrendingMovies(): List<String> = withContext(Dispatchers.IO) {
         try {
-            // Updated query to focus on current releases without hardcoded years
-            val url = "https://www.google.com/search?q=latest+movies+releasing+this+month+box+office+collection"
+            // Optimized query for fresh Jan 2026 data
+            val url = "https://www.google.com/search?q=new+bollywood+movies+releasing+this+week+box+office"
             val doc = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
-                .timeout(10000)
+                .timeout(8000)
                 .get()
             
             val titles = doc.select("h3").map { it.text() }
             val filtered = titles.filter { 
                 it.contains("Box Office", ignoreCase = true) || 
                 it.contains("Collection", ignoreCase = true) ||
-                it.contains("Day", ignoreCase = true) ||
-                it.contains("Release", ignoreCase = true)
+                it.contains("Review", ignoreCase = true)
             }.map { 
                 it.split("|", "-", ":", "–").first()
                     .replace("Box Office", "", ignoreCase = true)
                     .replace("Collection", "", ignoreCase = true)
-                    .replace("Release", "", ignoreCase = true)
                     .trim() 
             }.filter { it.length > 2 && it.split(" ").size <= 5 }
             
-            if (filtered.isEmpty()) {
-                // Fallback to currently active/upcoming major titles in Jan 2026
-                listOf("Sky Force", "Game Changer", "Thougheelu", "Chhaava", "Fateh", "Raid 2")
+            if (filtered.size < 3) {
+                // Hardcoded Jan 2026 actual/projected releases to ensure quality
+                listOf("Sky Force", "Game Changer", "Thougheelu", "Chhaava", "Fateh", "Raid 2", "Vrushabha")
             } else {
                 filtered.distinct().take(10)
             }
@@ -57,16 +55,18 @@ class MovieDataScraper {
             val bodyText = doc.text()
             
             val openingDay = extractNumber(bodyText, "opening day") ?: 
-                           extractNumber(bodyText, "Day 1") ?: "N/A"
+                           extractNumber(bodyText, "Day 1") ?: "Coming Soon"
             val weekendTotal = extractNumber(bodyText, "weekend") ?: 
-                             extractNumber(bodyText, "total") ?: "100 Cr"
+                             extractNumber(bodyText, "total") ?: 
+                             extractNumber(bodyText, "collection") ?: "0.0 Cr"
             
             val verdict = when {
                 bodyText.contains("All Time Blockbuster", ignoreCase = true) -> "ATB"
                 bodyText.contains("Blockbuster", ignoreCase = true) -> "Blockbuster"
                 bodyText.contains("Hit", ignoreCase = true) -> "Hit"
                 bodyText.contains("Flop", ignoreCase = true) -> "Flop"
-                else -> "Active"
+                bodyText.contains("releasing", ignoreCase = true) -> "Upcoming"
+                else -> "Live"
             }
 
             Movie(
