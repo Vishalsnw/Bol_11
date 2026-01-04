@@ -5,24 +5,3 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Android Project Status"
-
-[[workflows.workflow]]
-name = "Android Project Status"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo \"Android app code is ready for external build. Do not run on Replit.\" && tail -f /dev/null"
-
-[workflows.workflow.metadata]
-outputType = "console"
