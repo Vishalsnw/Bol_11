@@ -34,8 +34,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadData() {
         lifecycleScope.launch {
-            val sampleMovies = listOf("Pushpa 2", "Singham Again", "Bhool Bhulaiyaa 3")
-            val movies = sampleMovies.map { scraper.scrapeMovieDetails(it) }
+            val trendingMovies = scraper.getTrendingMovies()
+            val movies = trendingMovies.map { scraper.scrapeMovieDetails(it) }
             adapter.updateData(movies)
         }
     }
