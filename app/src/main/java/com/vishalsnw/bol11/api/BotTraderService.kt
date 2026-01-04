@@ -17,7 +17,7 @@ class BotTraderService(private val onPriceUpdate: (String, Double) -> Unit) {
                 val randomMovie = movies.randomOrNull() ?: continue
                 
                 // Simulate bot action
-                val changePercent = Random.nextDouble(-0.02, 0.03) // Slight upward bias
+                val changePercent = Random.nextDouble(-0.05, 0.05) // More volatility
                 val newPrice = randomMovie.currentPrice * (1 + changePercent)
                 
                 Log.d("BotTrader", "Bot traded ${randomMovie.name}. New Price: $newPrice")
