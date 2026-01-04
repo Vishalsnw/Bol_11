@@ -5,9 +5,15 @@ import androidx.appcompat.app.AppCompatActivity
 import com.vishalsnw.bol11.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.lifecycleScope
+import com.vishalsnw.bol11.api.MovieDataScraper
+import com.vishalsnw.bol11.model.Movie
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: MovieAdapter
+    private val scraper = MovieDataScraper()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -15,13 +21,23 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupUI()
+        loadData()
         showDisclaimer()
     }
 
     private fun setupUI() {
         binding.tvTitle.text = "Movie Stock Market"
+        adapter = MovieAdapter(emptyList())
         binding.rvMovies.layoutManager = LinearLayoutManager(this)
-        // Initial setup for the fantasy trading game UI
+        binding.rvMovies.adapter = adapter
+    }
+
+    private fun loadData() {
+        lifecycleScope.launch {
+            val sampleMovies = listOf("Pushpa 2", "Singham Again", "Bhool Bhulaiyaa 3")
+            val movies = sampleMovies.map { scraper.scrapeMovieDetails(it) }
+            adapter.updateData(movies)
+        }
     }
 
     private fun showDisclaimer() {
