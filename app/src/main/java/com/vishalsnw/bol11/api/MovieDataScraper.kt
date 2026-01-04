@@ -12,8 +12,8 @@ class MovieDataScraper {
 
     suspend fun getTrendingMovies(): List<String> = withContext(Dispatchers.IO) {
         try {
-            // Updated query for better results and added a backup reliable source approach
-            val url = "https://www.google.com/search?q=latest+bollywood+movies+box+office+collection+2025+2026"
+            // Updated query to focus on current releases without hardcoded years
+            val url = "https://www.google.com/search?q=latest+movies+releasing+this+month+box+office+collection"
             val doc = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
                 .timeout(10000)
@@ -23,22 +23,24 @@ class MovieDataScraper {
             val filtered = titles.filter { 
                 it.contains("Box Office", ignoreCase = true) || 
                 it.contains("Collection", ignoreCase = true) ||
-                it.contains("Day", ignoreCase = true)
+                it.contains("Day", ignoreCase = true) ||
+                it.contains("Release", ignoreCase = true)
             }.map { 
                 it.split("|", "-", ":", "–").first()
                     .replace("Box Office", "", ignoreCase = true)
                     .replace("Collection", "", ignoreCase = true)
+                    .replace("Release", "", ignoreCase = true)
                     .trim() 
             }.filter { it.length > 2 && it.split(" ").size <= 5 }
             
             if (filtered.isEmpty()) {
-                // Return a verified list of current/upcoming major releases if scraping fails
-                listOf("Pushpa 2: The Rule", "Singham Again", "Chhaava", "Game Changer", "Sky Force", "Thougheelu")
+                // Fallback to currently active/upcoming major titles in Jan 2026
+                listOf("Sky Force", "Game Changer", "Thougheelu", "Chhaava", "Fateh", "Raid 2")
             } else {
                 filtered.distinct().take(10)
             }
         } catch (e: Exception) {
-            listOf("Pushpa 2: The Rule", "Singham Again", "Chhaava", "Game Changer", "Sky Force")
+            listOf("Sky Force", "Game Changer", "Thougheelu", "Chhaava", "Fateh")
         }
     }
 
