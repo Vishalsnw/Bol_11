@@ -43,17 +43,19 @@ class MovieDataScraper {
             Movie(
                 id = movieName.hashCode().toString(),
                 name = movieName,
+                releaseYear = 2026,
                 currentPrice = price,
-                openingDay = "Jan 2026",
-                weekendTotal = weekendTotal,
-                verdict = "Trading Live"
+                status = "Trading Live",
+                releaseDate = System.currentTimeMillis()
             )
         } catch (e: Exception) {
             Movie(
                 id = movieName.hashCode().toString(),
                 name = movieName,
+                releaseYear = 2026,
                 currentPrice = 100.0,
-                verdict = "Market Open"
+                status = "Market Open",
+                releaseDate = System.currentTimeMillis() + 86400000
             )
         }
     }
