@@ -7,16 +7,20 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.lifecycleScope
 import com.vishalsnw.bol11.MovieAdapter
+import com.vishalsnw.bol11.api.MovieDataScraper
 import com.vishalsnw.bol11.databinding.FragmentMarketBinding
 import com.vishalsnw.bol11.model.Movie
 import com.vishalsnw.bol11.model.UserState
 import com.vishalsnw.bol11.util.GameStorage
+import kotlinx.coroutines.launch
 
 class MarketFragment : Fragment() {
     private var _binding: FragmentMarketBinding? = null
     private val binding get() = _binding!!
     private lateinit var storage: GameStorage
+    private val scraper = MovieDataScraper()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMarketBinding.inflate(inflater, container, false)
@@ -30,14 +34,23 @@ class MarketFragment : Fragment() {
         setupUI()
     }
 
+    fun refreshUI() {
+        activity?.runOnUiThread {
+            setupUI()
+        }
+    }
+
     private fun initializeDataIfNeeded() {
-        if (storage.loadFromFile("movies.json", Array<Movie>::class.java) == null) {
-            val initialMovies = arrayOf(
-                Movie("1", "Fateh", 2026, 150.0, "Trading Live", System.currentTimeMillis()),
-                Movie("2", "Raid 2", 2026, 120.0, "Trading Live", System.currentTimeMillis()),
-                Movie("3", "Sky Force", 2026, 180.0, "Market Open", System.currentTimeMillis() + 86400000)
-            )
-            storage.saveToFile("movies.json", initialMovies)
+        val existingMovies = storage.loadFromFile("movies.json", Array<Movie>::class.java)
+        if (existingMovies == null || existingMovies.isEmpty()) {
+            lifecycleScope.launch {
+                val movieNames = scraper.getTrendingMovies()
+                val movieList = movieNames.map { name ->
+                    scraper.scrapeMovieDetails(name)
+                }
+                storage.saveToFile("movies.json", movieList.toTypedArray())
+                setupUI()
+            }
         }
     }
 

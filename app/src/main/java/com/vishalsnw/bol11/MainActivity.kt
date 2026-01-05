@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.vishalsnw.bol11.databinding.ActivityMainBinding
+import com.vishalsnw.bol11.api.BotTraderService
 import com.vishalsnw.bol11.ui.MarketFragment
 import com.vishalsnw.bol11.ui.PortfolioFragment
 import com.vishalsnw.bol11.ui.LeaderboardFragment
@@ -11,6 +12,7 @@ import com.vishalsnw.bol11.ui.ProfileFragment
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private var botService: BotTraderService? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +23,22 @@ class MainActivity : AppCompatActivity() {
         if (savedInstanceState == null) {
             replaceFragment(MarketFragment())
         }
+        startBotSimulation()
+    }
+
+    private fun startBotSimulation() {
+        botService = BotTraderService(this) {
+            val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
+            if (currentFragment is MarketFragment) {
+                currentFragment.refreshUI()
+            }
+        }
+        botService?.startSimulation()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        botService?.stop()
     }
 
     private fun setupNavigation() {
