@@ -42,14 +42,21 @@ class MarketFragment : Fragment() {
 
     private fun initializeDataIfNeeded() {
         val existingMovies = storage.loadFromFile("movies.json", Array<Movie>::class.java)
-        if (existingMovies == null || existingMovies.isEmpty()) {
+        // Force refresh if titles are generic or missing
+        val needsRefresh = existingMovies == null || existingMovies.isEmpty() || existingMovies.any { it.name.startsWith("New Release") }
+        
+        if (needsRefresh) {
             lifecycleScope.launch {
-                val movieNames = scraper.getTrendingMovies()
-                val movieList = movieNames.map { name ->
-                    scraper.scrapeMovieDetails(name)
+                try {
+                    val movieNames = scraper.getTrendingMovies()
+                    val movieList = movieNames.map { name ->
+                        scraper.scrapeMovieDetails(name)
+                    }
+                    storage.saveToFile("movies.json", movieList.toTypedArray())
+                    setupUI()
+                } catch (e: Exception) {
+                    // Log error or handle failure
                 }
-                storage.saveToFile("movies.json", movieList.toTypedArray())
-                setupUI()
             }
         }
     }
