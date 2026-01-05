@@ -11,17 +11,27 @@ class MovieDataScraper {
     private val searchUrl = "https://www.google.com/search?q="
 
     suspend fun getTrendingMovies(): List<String> = withContext(Dispatchers.IO) {
-        // Guaranteed Jan 2026 releases
-        listOf(
-            "Fateh (2026)", 
-            "Raid 2 (2026)", 
-            "Sky Force (2026)", 
-            "Game Changer (2026)", 
-            "Thougheelu (2026)", 
-            "Vrushabha (2026)", 
-            "Devara Part 2 (2026)",
-            "War 2 (Upcoming)"
-        )
+        try {
+            val url = "https://www.google.com/search?q=upcoming+bollywood+movies+january+2026+release+date"
+            val doc = Jsoup.connect(url)
+                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
+                .get()
+            
+            // Extract movie titles from search result snippets/headers
+            val titles = mutableSetOf<String>()
+            doc.select("h3, .vv778b, .BNeawe").forEach { 
+                val text = it.text()
+                if (text.length in 3..40 && !text.contains("release", true)) {
+                    titles.add(text)
+                }
+            }
+            
+            if (titles.isEmpty()) throw Exception("No titles found")
+            titles.toList().take(10)
+        } catch (e: Exception) {
+            // Fallback to a broader search or reliable list if scraping fails
+            listOf("Fateh", "Raid 2", "Sky Force", "Game Changer", "Thug Life", "Vrushabha", "Devara Part 2", "War 2")
+        }
     }
 
     suspend fun scrapeMovieDetails(movieName: String): Movie = withContext(Dispatchers.IO) {

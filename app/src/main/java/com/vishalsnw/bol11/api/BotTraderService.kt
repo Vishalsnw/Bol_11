@@ -21,7 +21,8 @@ class BotTraderService(private val context: Context, private val onPriceUpdate: 
                 var changed = false
                 movies.forEach { movie ->
                     if (movie.status != "Market Closed") {
-                        val changePercent = Random.nextDouble(-0.01, 0.015)
+                        // More aggressive price fluctuation (0.5% to 2.5%)
+                        val changePercent = Random.nextDouble(-0.005, 0.025)
                         movie.currentPrice *= (1 + changePercent)
                         changed = true
                     }
