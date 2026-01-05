@@ -1,0 +1,159 @@
+
+This app is a game simulation, not real trading.
+Do NOT generate prices randomly on screen load.
+ALL prices, user holdings, and bot actions must be saved and loaded from files inside the Git repository.
+1. App Concept
+Build an Android app that simulates a Movie Stock Market Game.
+Movies behave like stocks
+Users trade using virtual coins only
+No real money
+No withdrawal
+Skill-based gameplay
+2. Screens (MANDATORY)
+The app must have exactly these screens:
+1️⃣ Market Screen
+Shows list of movies
+Each movie card shows:
+Movie name
+Release year
+Market status:
+Market Open
+Trading Live
+Market Closed
+Current price (virtual)
+BUY button
+⚠️ NO SELL button on Market screen
+2️⃣ Portfolio Screen (MOST IMPORTANT)
+This screen enables SELL.
+For each movie user owns, show:
+Movie name
+Quantity owned
+Buy price
+Current price
+Profit / Loss
+SELL button
+SELL must:
+Reduce holdings
+Add coins back to user
+Update stored data file
+3️⃣ Leaderboard Screen
+Mix of:
+Real users
+AI Traders (clearly marked)
+Show:
+Rank
+Coins
+Accuracy %
+4️⃣ Profile Screen
+Total coins
+Trades done
+Accuracy
+Rank
+Disclaimer text
+3. DATA PERSISTENCE (CRITICAL – NO RESET BUG)
+All game state must be stored in files inside the Git repo.
+Use simple file storage like:
+JSON files
+Text files
+Example files:
+Copy code
+
+/data/movies.json
+/data/prices.json
+/data/user_portfolio.json
+/data/bots.json
+4. GOLDEN RULE (DO NOT BREAK)
+❌ Never generate prices on UI load
+❌ Never reset values when app restarts
+✅ Always:
+Load data from files on app start
+Update files after every BUY or SELL
+Logic:
+Copy code
+
+If data exists in file → load it
+If not → create once and save
+5. Movie Rules (Very Important)
+Movies must be filtered like this:
+UPCOMING
+Release date in future
+Status: Market Open
+BUY allowed
+SELL allowed (if user owns)
+RUNNING
+Released within last 14 days
+Status: Trading Live
+BUY + SELL allowed
+CLOSED
+Old movies
+Status: Market Closed
+❌ BUY disabled
+❌ SELL disabled
+Old movies must NOT be tradable.
+6. BUY Logic (Simple)
+When user presses BUY:
+Deduct coins
+Add movie to portfolio
+Save updated portfolio to file
+Save updated coin balance
+7. SELL Logic (Critical)
+When user presses SELL:
+Reduce quantity
+Add coins back
+Update portfolio file
+Update coin file
+Recalculate profit / loss
+8. Price Movement (Safe Simulation)
+Prices must change slowly based on:
+Buy vs sell pressure
+AI trader activity
+Rules:
+No sudden resets
+No full random jumps
+Small up/down movements only
+Price must persist across app restarts
+9. AI TRADERS (NPCs – CLEARLY LABELED)
+Add 1000+ AI Traders.
+AI traders must:
+Be clearly marked as:
+“AI Trader”
+“Market Bot”
+AI behavior:
+Random buy/sell within limits
+Uses same price data as humans
+Activity stored in file
+AI traders exist to:
+Create volume
+Keep market alive
+Move prices realistically
+10. Coins Rules
+Free coins only
+Coins have NO real value
+Coins cannot be cashed out
+Coins are only for ranking
+11. UI FEEL
+Dark theme
+Green = profit
+Red = loss
+Smooth animations
+Rank movement animations
+12. Mandatory Disclaimer (Show in Profile)
+“This is a skill-based movie prediction game.
+All prices and results are simulated.
+Virtual coins have no real-world value.
+AI traders are part of the game design.”
+13. FAILURE HANDLING
+If:
+Data source fails
+Bot logic fails
+Then:
+Do NOT reset the game
+Keep last saved values
+Continue smoothly
+14. PRIORITY ORDER
+1️⃣ Data persistence
+2️⃣ BUY + SELL working
+3️⃣ Portfolio screen
+4️⃣ Bots
+5️⃣ UI polish
+Do NOT sacrifice logic for visuals.
