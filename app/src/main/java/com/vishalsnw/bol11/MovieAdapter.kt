@@ -23,7 +23,7 @@ class MovieAdapter(
         holder.binding.apply {
             tvMovieName.text = movie.name
             tvPrice.text = "₹${String.format("%.2f", movie.currentPrice)}"
-            tvVerdict.text = movie.verdict
+            tvVerdict.text = movie.status
             btnBuy.setOnClickListener { onBuyClick(movie) }
         }
     }
