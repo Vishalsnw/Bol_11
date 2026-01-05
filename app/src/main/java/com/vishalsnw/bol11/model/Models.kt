@@ -5,6 +5,8 @@ data class Movie(
     val name: String,
     val releaseYear: Int,
     var currentPrice: Double,
+    var bidPrice: Double,
+    var askPrice: Double,
     val status: String, // "Market Open", "Trading Live", "Market Closed"
     val releaseDate: Long // Timestamp
 )

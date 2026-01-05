@@ -22,8 +22,8 @@ class MovieAdapter(
         val movie = movies[position]
         holder.binding.apply {
             tvMovieName.text = movie.name
-            tvPrice.text = "₹${String.format("%.2f", movie.currentPrice)}"
-            tvVerdict.text = movie.status
+            tvPrice.text = "LTP: ₹${String.format("%.2f", movie.currentPrice)}"
+            tvVerdict.text = "Bid: ₹${String.format("%.2f", movie.bidPrice)} | Ask: ₹${String.format("%.2f", movie.askPrice)}"
             btnBuy.setOnClickListener { onBuyClick(movie) }
         }
     }

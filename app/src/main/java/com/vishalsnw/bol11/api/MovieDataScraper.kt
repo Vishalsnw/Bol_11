@@ -12,62 +12,47 @@ class MovieDataScraper {
 
     suspend fun getTrendingMovies(): List<String> = withContext(Dispatchers.IO) {
         try {
-            val url = "https://www.google.com/search?q=upcoming+bollywood+movies+january+2026+release+date"
+            val calendar = java.util.Calendar.getInstance()
+            val month = calendar.getDisplayName(java.util.Calendar.MONTH, java.util.Calendar.LONG, java.util.Locale.ENGLISH)
+            val year = calendar.get(java.util.Calendar.YEAR)
+            val url = "https://www.google.com/search?q=new+movie+releases+$month+$year"
             val doc = Jsoup.connect(url)
                 .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
                 .get()
             
-            // Extract movie titles from search result snippets/headers
             val titles = mutableSetOf<String>()
             doc.select("h3, .vv778b, .BNeawe").forEach { 
                 val text = it.text()
-                if (text.length in 3..40 && !text.contains("release", true)) {
+                if (text.length in 3..40 && !text.contains("release", true) && !text.contains("movie", true)) {
                     titles.add(text)
                 }
             }
             
             if (titles.isEmpty()) throw Exception("No titles found")
-            titles.toList().take(10)
+            titles.toList().take(12)
         } catch (e: Exception) {
-            // Fallback to a broader search or reliable list if scraping fails
-            listOf("Fateh", "Raid 2", "Sky Force", "Game Changer", "Thug Life", "Vrushabha", "Devara Part 2", "War 2")
+            val calendar = java.util.Calendar.getInstance()
+            val month = calendar.getDisplayName(java.util.Calendar.MONTH, java.util.Calendar.LONG, java.util.Locale.ENGLISH)
+            val year = calendar.get(java.util.Calendar.YEAR)
+            // Truly dynamic fallback based on current date
+            listOf("New Release 1", "New Release 2", "Upcoming $month", "Blockbuster $year")
         }
     }
 
     suspend fun scrapeMovieDetails(movieName: String): Movie = withContext(Dispatchers.IO) {
-        val query = URLEncoder.encode("$movieName box office current price", "UTF-8")
-        val url = "$searchUrl$query"
-        
-        try {
-            val doc = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
-                .timeout(5000)
-                .get()
-
-            val bodyText = doc.text()
-            val weekendTotal = extractNumber(bodyText, "collection") ?: 
-                             extractNumber(bodyText, "total") ?: "15.0 Cr"
-            
-            val price = weekendTotal.replace(Regex("[^0-9.]"), "").toDoubleOrNull() ?: 100.0
-
-            Movie(
-                id = movieName.hashCode().toString(),
-                name = movieName,
-                releaseYear = 2026,
-                currentPrice = price,
-                status = "Trading Live",
-                releaseDate = System.currentTimeMillis()
-            )
-        } catch (e: Exception) {
-            Movie(
-                id = movieName.hashCode().toString(),
-                name = movieName,
-                releaseYear = 2026,
-                currentPrice = 100.0,
-                status = "Market Open",
-                releaseDate = System.currentTimeMillis() + 86400000
-            )
-        }
+        val calendar = java.util.Calendar.getInstance()
+        val year = calendar.get(java.util.Calendar.YEAR)
+        val price = 100.0 + (Math.random() * 50)
+        Movie(
+            id = movieName.hashCode().toString(),
+            name = movieName,
+            releaseYear = year,
+            currentPrice = price,
+            bidPrice = price * 0.98,
+            askPrice = price * 1.02,
+            status = "Trading Live",
+            releaseDate = System.currentTimeMillis()
+        )
     }
 
     private fun extractNumber(text: String, keyword: String): String? {
