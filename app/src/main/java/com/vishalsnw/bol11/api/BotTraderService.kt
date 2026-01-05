@@ -1,27 +1,38 @@
 package com.vishalsnw.bol11.api
 
-import android.util.Log
+import android.content.Context
 import com.vishalsnw.bol11.model.Movie
+import com.vishalsnw.bol11.util.GameStorage
 import kotlinx.coroutines.*
 import kotlin.random.Random
 
-class BotTraderService(private val onPriceUpdate: (String, Double) -> Unit) {
+class BotTraderService(private val context: Context, private val onPriceUpdate: () -> Unit) {
+    private val storage = GameStorage(context)
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
     private var job: Job? = null
 
-    fun startSimulation(movies: List<Movie>) {
+    fun startSimulation() {
         job?.cancel()
         job = scope.launch {
             while (isActive) {
-                delay(3000) // Bots trade every 3 seconds
-                val randomMovie = movies.randomOrNull() ?: continue
+                delay(5000)
+                val movies = storage.loadFromFile("movies.json", Array<Movie>::class.java)?.toMutableList() ?: continue
                 
-                // Simulate bot action
-                val changePercent = Random.nextDouble(-0.05, 0.05) // More volatility
-                val newPrice = randomMovie.currentPrice * (1 + changePercent)
-                
-                Log.d("BotTrader", "Bot traded ${randomMovie.name}. New Price: $newPrice")
-                onPriceUpdate(randomMovie.id, newPrice)
+                var changed = false
+                movies.forEach { movie ->
+                    if (movie.status != "Market Closed") {
+                        val changePercent = Random.nextDouble(-0.01, 0.015)
+                        movie.currentPrice *= (1 + changePercent)
+                        changed = true
+                    }
+                }
+
+                if (changed) {
+                    storage.saveToFile("movies.json", movies.toTypedArray())
+                    withContext(Dispatchers.Main) {
+                        onPriceUpdate()
+                    }
+                }
             }
         }
     }
