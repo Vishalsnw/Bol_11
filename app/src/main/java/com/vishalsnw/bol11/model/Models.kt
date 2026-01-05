@@ -3,23 +3,22 @@ package com.vishalsnw.bol11.model
 data class Movie(
     val id: String,
     val name: String,
-    val currentPrice: Double,
-    val openingDay: String = "N/A",
-    val weekendTotal: String = "N/A",
-    val verdict: String = "Pending",
-    val priceHistory: List<Double> = emptyList()
+    val releaseYear: Int,
+    var currentPrice: Double,
+    val status: String, // "Market Open", "Trading Live", "Market Closed"
+    val releaseDate: Long // Timestamp
 )
 
-data class Portfolio(
-    val userId: String,
-    val holdings: MutableMap<String, Int> = mutableMapOf() // movieId to quantity
+data class UserState(
+    var coins: Double = 10000.0,
+    val holdings: MutableMap<String, Int> = mutableMapOf(), // MovieId to Quantity
+    val buyPrices: MutableMap<String, Double> = mutableMapOf() // MovieId to Avg Buy Price
 )
 
-data class Transaction(
+data class Bot(
     val id: String,
-    val movieId: String,
-    val quantity: Int,
-    val price: Double,
-    val timestamp: Long = System.currentTimeMillis(),
-    val isBuy: Boolean
+    val name: String,
+    val coins: Double,
+    val accuracy: Double,
+    val isAI: Boolean = true
 )
