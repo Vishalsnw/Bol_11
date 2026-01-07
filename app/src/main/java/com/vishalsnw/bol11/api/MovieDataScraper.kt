@@ -30,28 +30,45 @@ class MovieDataScraper {
                 val jsonObject = JSONObject(jsonData)
                 val titles = mutableSetOf<String>()
 
-                // Try organic results
-                val organicResults = jsonObject.optJSONArray("organic_results")
-                organicResults?.let {
-                    for (i in 0 until it.length()) {
-                        val result = it.getJSONObject(i)
-                        val title = result.optString("title")
-                        if (title.isNotEmpty() && !title.contains("Wikipedia", true)) {
-                            titles.add(title.split("-")[0].split("|")[0].trim())
-                        }
-                    }
-                }
-
-                // Try knowledge graph / movies carousel
+                // 1. Prioritize Knowledge Graph (Carousel/Listings)
                 val knowledgeGraph = jsonObject.optJSONObject("knowledge_graph")
+                
+                // Check for movies array in knowledge graph
                 knowledgeGraph?.optJSONArray("movies")?.let {
                     for (i in 0 until it.length()) {
                         titles.add(it.getJSONObject(i).getString("name"))
                     }
                 }
 
-                if (titles.isEmpty()) throw Exception("No titles found")
-                titles.toList().take(12)
+                // Check for generic list items (common for "movies released in...")
+                jsonObject.optJSONArray("knowledge_graph_list")?.let {
+                    for (i in 0 until it.length()) {
+                        titles.add(it.getJSONObject(i).optString("title"))
+                    }
+                }
+
+                // 2. Extract from organic results ONLY if they look like actual titles
+                if (titles.size < 5) {
+                    val organicResults = jsonObject.optJSONArray("organic_results")
+                    organicResults?.let {
+                        for (i in 0 until it.length()) {
+                            val result = it.getJSONObject(i)
+                            val title = result.optString("title")
+                            // Filter out "List of...", "Upcoming...", "Bollywood movies..."
+                            if (title.isNotEmpty() && 
+                                !title.contains("Wikipedia", true) && 
+                                !title.contains("List of", true) &&
+                                !title.contains("releasing", true) &&
+                                !title.contains("Upcoming", true) &&
+                                !title.contains("movies", true)) {
+                                titles.add(title.split("-")[0].split("|")[0].trim())
+                            }
+                        }
+                    }
+                }
+
+                if (titles.isEmpty()) throw Exception("No clean titles found")
+                titles.filter { it.length > 2 && it.length < 50 }.toList().take(12)
             }
         } catch (e: Exception) {
             listOf("Fateh", "Raid 2", "Sky Force", "Game Changer", "Thug Life", "Vrushabha", "Devara Part 2", "War 2", "Singham Again", "Bhool Bhulaiyaa 3")
