@@ -6,41 +6,54 @@ import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.net.URLEncoder
 
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import org.json.JSONObject
+
 class MovieDataScraper {
-    
-    private val searchUrl = "https://www.google.com/search?q="
+    private val client = OkHttpClient()
+    private val apiKey = "f18ef590e896a536910f0141ec02e660cb23744b672ebdbbf5adb35db9d2a43b"
 
     suspend fun getTrendingMovies(): List<String> = withContext(Dispatchers.IO) {
         try {
             val calendar = java.util.Calendar.getInstance()
             val month = calendar.getDisplayName(java.util.Calendar.MONTH, java.util.Calendar.LONG, java.util.Locale.ENGLISH)
             val year = calendar.get(java.util.Calendar.YEAR)
-            // Specific search query for movie list
-            val url = "https://www.google.com/search?q=list+of+bollywood+movies+released+in+$month+$year"
-            val doc = Jsoup.connect(url)
-                .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
-                .timeout(10000)
-                .get()
+            val query = "latest Bollywood movies released in $month $year"
             
-            val titles = mutableSetOf<String>()
-            // Targeted selectors for movie cards and titles in search results
-            doc.select("div.BNeawe.vv778b.AP7Wnd, h3, div.rllt__details div.BNeawe").forEach { 
-                val text = it.text().trim()
-                // Filter for likely movie titles: length, no "Wikipedia", "Release", etc.
-                if (text.length in 3..40 && 
-                    !text.contains("release", true) && 
-                    !text.contains("movie", true) && 
-                    !text.contains("Wikipedia", true) &&
-                    !text.contains("Review", true) &&
-                    !text.contains("Rating", true)) {
-                    titles.add(text)
+            val request = Request.Builder()
+                .url("https://serpapi.com/search.json?q=${URLEncoder.encode(query, "UTF-8")}&engine=google&api_key=$apiKey")
+                .build()
+
+            client.newCall(request).execute().use { response ->
+                val jsonData = response.body?.string() ?: throw Exception("Empty response")
+                val jsonObject = JSONObject(jsonData)
+                val titles = mutableSetOf<String>()
+
+                // Try organic results
+                val organicResults = jsonObject.optJSONArray("organic_results")
+                organicResults?.let {
+                    for (i in 0 until it.length()) {
+                        val result = it.getJSONObject(i)
+                        val title = result.optString("title")
+                        if (title.isNotEmpty() && !title.contains("Wikipedia", true)) {
+                            titles.add(title.split("-")[0].split("|")[0].trim())
+                        }
+                    }
                 }
+
+                // Try knowledge graph / movies carousel
+                val knowledgeGraph = jsonObject.optJSONObject("knowledge_graph")
+                knowledgeGraph?.optJSONArray("movies")?.let {
+                    for (i in 0 until it.length()) {
+                        titles.add(it.getJSONObject(i).getString("name"))
+                    }
+                }
+
+                if (titles.isEmpty()) throw Exception("No titles found")
+                titles.toList().take(12)
             }
-            
-            if (titles.isEmpty()) throw Exception("No real titles found")
-            titles.toList().take(12)
         } catch (e: Exception) {
-            // High-quality fallback if scraping is blocked or fails
             listOf("Fateh", "Raid 2", "Sky Force", "Game Changer", "Thug Life", "Vrushabha", "Devara Part 2", "War 2", "Singham Again", "Bhool Bhulaiyaa 3")
         }
     }
